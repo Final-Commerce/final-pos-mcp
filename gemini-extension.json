@@ -1,0 +1,25 @@
+{
+  "name": "final-pos",
+  "version": "1.0.0",
+  "description": "Build custom point of sale, kiosk, self-checkout & in-person payment apps with AI — grounded Final POS API lookups, vetted screen blueprints, live sandbox previews and one-command deploys. By Final (finalpos.com).",
+  "contextFileName": "GEMINI.md",
+  "settings": [
+    {
+      "name": "Final API key",
+      "description": "Your organization API key (sk_...). Mint one at build.finalpos.com: open a flow, then chat rail > cable icon > \"Connect your AI tool\".",
+      "envVar": "FINAL_API_KEY",
+      "sensitive": true
+    }
+  ],
+  "mcpServers": {
+    "final-flows": {
+      "httpUrl": "https://build.finalpos.com/api/mcp",
+      "headers": {
+        "Authorization": "Bearer $FINAL_API_KEY"
+      }
+    },
+    "final-docs": {
+      "httpUrl": "https://docs.finalpos.com/mcp"
+    }
+  }
+}

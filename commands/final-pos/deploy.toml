@@ -1,0 +1,17 @@
+description = "Ship the current Final POS flow — validate, then hand off to the Final builder to launch."
+
+prompt = """
+Ship the Final POS flow we are working on. Optional flow reference from the
+user: {{args}}
+
+1. Determine the flowId (current conversation flow, or resolve via list_flows
+   and confirm with the user).
+2. Run validate_flow first and fix every finding — never ship a failing flow.
+3. Call open_in_builder and give the user the deep link: launching from the
+   Final builder is the recommended path (it handles hosting auth and org
+   settings).
+4. Only if the user explicitly provides a hostingToken, offer the direct
+   CI-style path via deploy_flow instead.
+
+Finish with the builder link and clear instructions for the final launch step.
+"""

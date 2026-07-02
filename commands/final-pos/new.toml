@@ -1,0 +1,25 @@
+description = "Create a new Final POS app from a description and build it end to end."
+
+prompt = """
+Build a new Final POS app. The user's brief: {{args}}
+
+If the brief is empty, ask what they want to build (concept, hardware target
+such as tablet/kiosk/terminal/mobile, and any branding preferences) before
+touching any tools.
+
+Then run the full build loop from the final-pos extension context:
+
+1. get_scaffold — learn the app contract.
+2. create_flow — name it after the concept; keep the returned flowId for every
+   later call, and share the builder link with the user.
+3. log_message (role "user") with the brief above.
+4. Plan the screens. Check list_blueprints and adapt matching blueprints via
+   get_blueprint. Ground EVERY renderClient call with lookup_command_frame
+   before writing it — never guess.
+5. write_flow_files — full file contents, app code under src/, entry
+   src/App.tsx.
+6. validate_flow — fix every finding and re-validate until clean.
+7. start_preview — give the user the live preview URL.
+
+Finish by summarizing what was built, the preview URL, and the builder link.
+"""

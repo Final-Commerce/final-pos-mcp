@@ -1,0 +1,18 @@
+description = "Start or sync the live sandbox preview for the current Final POS flow."
+
+prompt = """
+Get a live preview of the Final POS flow we are working on. Optional flow
+reference from the user: {{args}}
+
+1. Determine the flowId: use the flow from this conversation if there is one;
+   otherwise resolve the user's reference (or the most recent flow) via
+   list_flows and confirm with the user before proceeding.
+2. If a preview is already running, call sync_preview to reconcile files and
+   run the green-build gate. Otherwise call start_preview.
+3. If the build gate fails, read the errors, fix the offending files with
+   write_flow_files (grounding any renderClient changes in
+   lookup_command_frame), and sync again.
+4. Check get_preview_status if the URL does not respond.
+
+Finish by giving the user the public preview URL.
+"""

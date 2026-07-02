@@ -1,0 +1,18 @@
+description = "Run the full Final POS gate suite on the current flow and fix every finding."
+
+prompt = """
+Validate the Final POS flow we are working on. Optional flow reference from
+the user: {{args}}
+
+1. Determine the flowId (current conversation flow, or resolve via list_flows
+   and confirm with the user).
+2. Call validate_flow — it runs the guardrails scan, the real command-frame
+   TypeScript check, and the hardcoded-secrets scan.
+3. For every finding: read the affected files with read_flow_files, fix them
+   with write_flow_files (ground renderClient changes in
+   lookup_command_frame), and re-run validate_flow.
+4. Repeat until the suite passes clean.
+
+Finish with a summary of what was found and fixed, and the final validation
+status.
+"""
