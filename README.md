@@ -50,7 +50,7 @@ All clients authenticate with a Final **organization API key** (`sk_...`):
 ### Gemini CLI
 
 ```bash
-gemini extensions install Final-Commerce/final-pos-mcp
+gemini extensions install https://github.com/Final-Commerce/final-pos-mcp
 ```
 
 You'll be prompted for your `FINAL_API_KEY` during install (stored in your
