@@ -1,6 +1,6 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
-  "name": "io.github.final-commerce/final-docs",
+  "name": "io.github.Final-Commerce/final-docs",
   "title": "Final POS Docs",
   "description": "Search the Final POS REST API documentation.",
   "version": "1.0.0",

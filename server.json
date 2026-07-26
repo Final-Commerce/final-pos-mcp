@@ -1,6 +1,6 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
-  "name": "io.github.final-commerce/final-pos",
+  "name": "io.github.Final-Commerce/final-pos",
   "title": "Final POS",
   "description": "Build custom POS, kiosk, self-checkout & in-person payment apps with AI agents on Final POS.",
   "version": "1.0.0",
