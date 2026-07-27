@@ -1,10 +1,10 @@
 name: Publish to MCP Registry
 
-# Publishes the final-docs server under io.github.Final-Commerce/* via GitHub OIDC.
-# The main final-flows server is registered as com.finalpos.build/final-flows
-# (domain-verified namespace) — republishing it requires the com.finalpos.build
-# auth key, not GitHub OIDC, so it is not published from CI. server.json at the
-# repo root documents that canonical entry.
+# Two independent jobs:
+#  - final-flows: com.finalpos.build/final-flows via DNS auth on finalpos.com
+#    (requires the MCP_PRIVATE_KEY repo secret + the "v=MCPv1; ..." TXT record
+#    on finalpos.com; apex DNS verification covers com.finalpos.* namespaces)
+#  - final-docs: io.github.Final-Commerce/final-docs via GitHub OIDC
 
 on:
   workflow_dispatch:
@@ -12,12 +12,10 @@ on:
     tags: ["v*"]
 
 jobs:
-  publish:
+  publish-final-flows:
     runs-on: ubuntu-latest
     permissions:
-      id-token: write # Required for OIDC authentication
       contents: read
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
@@ -26,7 +24,26 @@ jobs:
         run: |
           curl -L "https://github.com/modelcontextprotocol/registry/releases/latest/download/mcp-publisher_$(uname -s | tr '[:upper:]' '[:lower:]')_$(uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/').tar.gz" | tar xz mcp-publisher
 
-      - name: Authenticate to MCP Registry
+      - name: Authenticate to MCP Registry (DNS, finalpos.com)
+        run: ./mcp-publisher login dns --domain finalpos.com --private-key "${{ secrets.MCP_PRIVATE_KEY }}"
+
+      - name: Publish final-flows server
+        run: ./mcp-publisher publish
+
+  publish-final-docs:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write # Required for OIDC authentication
+      contents: read
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Install mcp-publisher
+        run: |
+          curl -L "https://github.com/modelcontextprotocol/registry/releases/latest/download/mcp-publisher_$(uname -s | tr '[:upper:]' '[:lower:]')_$(uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/').tar.gz" | tar xz mcp-publisher
+
+      - name: Authenticate to MCP Registry (GitHub OIDC)
         run: ./mcp-publisher login github-oidc
 
       - name: Publish final-docs server
