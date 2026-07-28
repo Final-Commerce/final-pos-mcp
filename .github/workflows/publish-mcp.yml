@@ -24,10 +24,21 @@ jobs:
         run: |
           curl -L "https://github.com/modelcontextprotocol/registry/releases/latest/download/mcp-publisher_$(uname -s | tr '[:upper:]' '[:lower:]')_$(uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/').tar.gz" | tar xz mcp-publisher
 
+      - name: Skip if version already published
+        id: check
+        run: |
+          NAME=$(jq -r .name server.json)
+          VER=$(jq -r .version server.json)
+          LATEST=$(curl -s "https://registry.modelcontextprotocol.io/v0.1/servers?search=${NAME}" | jq -r '.servers[] | select(.server.name == "'"$NAME"'") | select(._meta."io.modelcontextprotocol.registry/official".isLatest) | .server.version')
+          echo "latest=$LATEST current=$VER"
+          if [ "$LATEST" = "$VER" ]; then echo "skip=true" >> "$GITHUB_OUTPUT"; else echo "skip=false" >> "$GITHUB_OUTPUT"; fi
+
       - name: Authenticate to MCP Registry (DNS, finalpos.com)
+        if: steps.check.outputs.skip == 'false'
         run: ./mcp-publisher login dns --domain finalpos.com --private-key "${{ secrets.MCP_PRIVATE_KEY }}"
 
       - name: Publish final-flows server
+        if: steps.check.outputs.skip == 'false'
         run: ./mcp-publisher publish
 
   publish-final-docs:
@@ -43,8 +54,19 @@ jobs:
         run: |
           curl -L "https://github.com/modelcontextprotocol/registry/releases/latest/download/mcp-publisher_$(uname -s | tr '[:upper:]' '[:lower:]')_$(uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/').tar.gz" | tar xz mcp-publisher
 
+      - name: Skip if version already published
+        id: check
+        run: |
+          NAME=$(jq -r .name docs-server/server.json)
+          VER=$(jq -r .version docs-server/server.json)
+          LATEST=$(curl -s "https://registry.modelcontextprotocol.io/v0.1/servers?search=${NAME}" | jq -r '.servers[] | select(.server.name == "'"$NAME"'") | select(._meta."io.modelcontextprotocol.registry/official".isLatest) | .server.version')
+          echo "latest=$LATEST current=$VER"
+          if [ "$LATEST" = "$VER" ]; then echo "skip=true" >> "$GITHUB_OUTPUT"; else echo "skip=false" >> "$GITHUB_OUTPUT"; fi
+
       - name: Authenticate to MCP Registry (GitHub OIDC)
+        if: steps.check.outputs.skip == 'false'
         run: ./mcp-publisher login github-oidc
 
       - name: Publish final-docs server
+        if: steps.check.outputs.skip == 'false'
         run: cd docs-server && ../mcp-publisher publish
