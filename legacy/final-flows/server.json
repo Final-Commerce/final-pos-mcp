@@ -1,0 +1,26 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "com.finalpos.build/final-flows",
+  "title": "Final POS Flows (direct)",
+  "description": "Flow's direct endpoint for sk_ keys. For all of Final in one server, use com.finalpos/final.",
+  "version": "1.1.0",
+  "websiteUrl": "https://github.com/Final-Commerce/final-pos-mcp",
+  "repository": {
+    "url": "https://github.com/Final-Commerce/final-pos-mcp",
+    "source": "github"
+  },
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://flow.finalpos.com/api/mcp",
+      "headers": [
+        {
+          "name": "Authorization",
+          "description": "Bearer sk_... Flow organization key. New setups: use https://ai.finalpos.com/mcp (com.finalpos/final) instead.",
+          "isRequired": false,
+          "isSecret": true
+        }
+      ]
+    }
+  ]
+}

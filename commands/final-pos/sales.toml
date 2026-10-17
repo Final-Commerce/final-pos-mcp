@@ -1,0 +1,19 @@
+description = "Summarize sales for a period from Final reports."
+
+prompt = """
+Report on sales in the merchant's Final store. Period or question from the
+user: {{args}}
+
+1. get_connection — note the company; switch_company if needed. If report
+   tools are not listed, use find_tools ("sales breakdown") and call_tool, or
+   enable_packs reports.
+2. Pick the date range from the request (default: last 7 days, compared with
+   the 7 days before) and say which range you used.
+3. Use hub_get_financial_summary for totals and hub_get_sales_breakdown for
+   categories and products; hub_get_payment_methods_breakdown or
+   hub_get_employee_sales if the question is about those.
+4. Answer with the numbers first (currency included), then two or three
+   observations worth acting on.
+
+This is read-only: do not change anything.
+"""

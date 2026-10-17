@@ -1,10 +1,11 @@
 name: Publish to MCP Registry
 
-# Two independent jobs:
-#  - final-flows: com.finalpos.build/final-flows via DNS auth on finalpos.com
-#    (requires the MCP_PRIVATE_KEY repo secret + the "v=MCPv1; ..." TXT record
-#    on finalpos.com; apex DNS verification covers com.finalpos.* namespaces)
-#  - final-docs: io.github.Final-Commerce/final-docs via GitHub OIDC
+# Three registry entries, each published only when its version is not live yet:
+#  - com.finalpos/final              server.json                      the Final MCP gateway (ai.finalpos.com/mcp)
+#  - com.finalpos.build/final-flows  legacy/final-flows/server.json   Flow's direct endpoint, kept for sk_ keys
+#  - io.github.Final-Commerce/final-docs  docs-server/server.json     the docs MCP server
+# The com.finalpos.* entries use DNS auth on finalpos.com (MCP_PRIVATE_KEY repo
+# secret + the "v=MCPv1; ..." TXT record on the apex); final-docs uses GitHub OIDC.
 
 on:
   workflow_dispatch:
@@ -12,7 +13,7 @@ on:
     tags: ["v*"]
 
 jobs:
-  publish-final-flows:
+  publish-finalpos:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -24,22 +25,20 @@ jobs:
         run: |
           curl -L "https://github.com/modelcontextprotocol/registry/releases/latest/download/mcp-publisher_$(uname -s | tr '[:upper:]' '[:lower:]')_$(uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/').tar.gz" | tar xz mcp-publisher
 
-      - name: Skip if version already published
-        id: check
-        run: |
-          NAME=$(jq -r .name server.json)
-          VER=$(jq -r .version server.json)
-          LATEST=$(curl -s "https://registry.modelcontextprotocol.io/v0.1/servers?search=${NAME}" | jq -r '.servers[] | select(.server.name == "'"$NAME"'") | select(._meta."io.modelcontextprotocol.registry/official".isLatest) | .server.version')
-          echo "latest=$LATEST current=$VER"
-          if [ "$LATEST" = "$VER" ]; then echo "skip=true" >> "$GITHUB_OUTPUT"; else echo "skip=false" >> "$GITHUB_OUTPUT"; fi
-
       - name: Authenticate to MCP Registry (DNS, finalpos.com)
-        if: steps.check.outputs.skip == 'false'
         run: ./mcp-publisher login dns --domain finalpos.com --private-key "${{ secrets.MCP_PRIVATE_KEY }}"
 
-      - name: Publish final-flows server
-        if: steps.check.outputs.skip == 'false'
-        run: ./mcp-publisher publish
+      - name: Publish com.finalpos entries
+        run: |
+          set -euo pipefail
+          for dir in . legacy/final-flows; do
+            NAME=$(jq -r .name "$dir/server.json")
+            VER=$(jq -r .version "$dir/server.json")
+            LATEST=$(curl -s "https://registry.modelcontextprotocol.io/v0.1/servers?search=${NAME}" | jq -r --arg n "$NAME" '.servers[] | select(.server.name == $n) | select(._meta."io.modelcontextprotocol.registry/official".isLatest) | .server.version')
+            echo "$NAME latest=$LATEST current=$VER"
+            if [ "$LATEST" = "$VER" ]; then echo "skip $NAME"; continue; fi
+            (cd "$dir" && "$GITHUB_WORKSPACE/mcp-publisher" publish)
+          done
 
   publish-final-docs:
     runs-on: ubuntu-latest
