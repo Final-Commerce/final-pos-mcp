@@ -1,0 +1,14 @@
+{
+  "name": "final",
+  "displayName": "Final POS",
+  "description": "The Final MCP server (https://ai.finalpos.com/mcp) plus the Final playbook: run a store in Hub (catalog, stock, purchase orders, orders, customers, reports, team, bookings) and build, preview and deploy POS apps with Flow. Sign in with Final; no API key needed.",
+  "version": "2.0.1",
+  "author": { "name": "Final Commerce", "email": "support@finalpos.com" },
+  "homepage": "https://finalpos.com/mcp",
+  "repository": "https://github.com/Final-Commerce/final-pos-mcp",
+  "license": "Apache-2.0",
+  "keywords": ["final", "finalpos", "pos", "point-of-sale", "retail", "inventory", "commerce", "mcp", "kiosk", "payments"],
+  "logo": "assets/logo.png",
+  "skills": "./skills/",
+  "mcpServers": "./.mcp.json"
+}
