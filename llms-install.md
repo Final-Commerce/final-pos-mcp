@@ -49,12 +49,7 @@ header:
 Do not add an `Authorization` header when using OAuth: a configured header
 stops the OAuth flow. Keys starting with `sk_` or `fpm_` are not accepted here.
 
-## 2. Optional: the docs server
-
-To search the Final POS REST API docs, also add
-`https://mcp.finalpos.com/mcp` as `final-docs`.
-
-## 3. Verify
+## 2. Verify
 
 Call `get_connection` on `final`. It returns the organization, the company Hub
 tools act on, and the allowed and listed packs. Then call `list_packs`.

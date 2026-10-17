@@ -1,14 +1,11 @@
 {
   "name": "final-pos",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Final POS from Gemini: run the store (catalog, stock, purchase orders, orders, customers, reports, team, bookings) and build, preview and deploy custom POS, kiosk and payment-terminal apps. One MCP server, sign in with Final. By Final (finalpos.com).",
   "contextFileName": "GEMINI.md",
   "mcpServers": {
     "final": {
       "httpUrl": "https://ai.finalpos.com/mcp"
-    },
-    "final-docs": {
-      "httpUrl": "https://mcp.finalpos.com/mcp"
     }
   }
 }

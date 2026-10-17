@@ -18,8 +18,6 @@ allowed:
   and payment-terminal apps, with grounding, blueprints, preview sandboxes,
   validation and deploys.
 
-A second server, `final-docs`, searches the Final POS REST API documentation.
-
 ## Start every session the same way
 
 1. Call **`get_connection`**. It returns who you act as, the company Hub
@@ -72,8 +70,8 @@ https://ai.finalpos.com/connections.
    timeline matches the conversation.
 4. **Ground before you write.** Check every `renderClient` call with
    `flow_lookup_command_frame`, `./final/*` helpers with
-   `flow_lookup_engine_component`, and REST calls with `flow_lookup_pos_api`
-   or `final-docs`. Never guess a method, entity field or topic.
+   `flow_lookup_engine_component`, and REST calls with `flow_lookup_pos_api`.
+   Never guess a method, entity field or topic.
 5. **Start from blueprints**: `flow_search_blueprints` / `flow_get_blueprint`
    for product grids, carts, payment screens and receipts.
 6. **`flow_write_flow_files`** with full file contents. App code lives under

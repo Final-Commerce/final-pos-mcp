@@ -3,10 +3,6 @@
     "final": {
       "type": "http",
       "url": "https://ai.finalpos.com/mcp"
-    },
-    "final-docs": {
-      "type": "http",
-      "url": "https://mcp.finalpos.com/mcp"
     }
   }
 }
