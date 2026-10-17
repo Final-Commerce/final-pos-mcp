@@ -14,7 +14,7 @@
 </p>
 
 <p align="center">
-  <a href="https://registry.modelcontextprotocol.io/v0.1/servers?search=com.finalpos/final"><img src="https://img.shields.io/badge/MCP_Registry-com.finalpos%2Ffinal-5A45FF" alt="MCP Registry: com.finalpos/final" /></a>
+  <a href="https://registry.modelcontextprotocol.io/v0.1/servers/com.finalpos%2Ffinal/versions/latest"><img src="https://img.shields.io/badge/MCP_Registry-com.finalpos%2Ffinal-5A45FF" alt="MCP Registry: com.finalpos/final" /></a>
   <a href="https://cursor.com/en/install-mcp?name=final&config=eyJ1cmwiOiJodHRwczovL2FpLmZpbmFscG9zLmNvbS9tY3AifQ=="><img src="https://img.shields.io/badge/Cursor-Add_server-000000" alt="Add to Cursor" /></a>
   <a href="https://insiders.vscode.dev/redirect/mcp/install?name=final&config=%7B%22type%22%3A%22http%22%2C%22url%22%3A%22https%3A%2F%2Fai.finalpos.com%2Fmcp%22%7D"><img src="https://img.shields.io/badge/VS_Code-Install_server-007ACC" alt="Install in VS Code" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache--2.0-blue" alt="License: Apache-2.0" /></a>
