@@ -14,7 +14,8 @@ jobs:
       - name: JSON files parse
         run: |
           for f in server.json legacy/final-flows/server.json gemini-extension.json .mcp.json \
-                   .claude-plugin/marketplace.json plugins/final/.claude-plugin/plugin.json plugins/final/.mcp.json glama.json; do
+                   .claude-plugin/marketplace.json plugins/final/.claude-plugin/plugin.json plugins/final/.mcp.json glama.json \
+                   .cursor-plugin/marketplace.json plugins/final/.cursor-plugin/plugin.json; do
             jq empty "$f" || { echo "::error file=$f::invalid JSON"; exit 1; }
           done
 
@@ -33,3 +34,9 @@ jobs:
 
       - name: Both MCP configs point at the same servers
         run: diff <(jq -S . .mcp.json) <(jq -S . plugins/final/.mcp.json)
+
+      - name: Claude and Cursor plugins carry the same version
+        run: |
+          a=$(jq -r .version plugins/final/.claude-plugin/plugin.json)
+          b=$(jq -r .version plugins/final/.cursor-plugin/plugin.json)
+          [ "$a" = "$b" ] || { echo "::error::plugin versions differ: Claude $a, Cursor $b"; exit 1; }

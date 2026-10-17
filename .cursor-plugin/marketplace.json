@@ -1,0 +1,14 @@
+{
+  "name": "final",
+  "owner": { "name": "Final Commerce", "email": "support@finalpos.com" },
+  "metadata": {
+    "description": "Final POS for Cursor: the Final MCP server and the playbook for running a store and building POS apps."
+  },
+  "plugins": [
+    {
+      "name": "final",
+      "source": "./plugins/final",
+      "description": "Run a Final POS store (catalog, stock, orders, customers, reports) and build POS apps from Cursor."
+    }
+  ]
+}

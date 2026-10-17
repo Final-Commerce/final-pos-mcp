@@ -283,8 +283,9 @@ Final's version-locked APIs (`flow_lookup_pos_api`,
 
 This repo holds the public setup guide, the MCP Registry entries
 (`server.json`, `legacy/`), the Gemini CLI extension
-(`gemini-extension.json`, `GEMINI.md`, `commands/`), the Claude Code plugin
-marketplace (`.claude-plugin/`, `plugins/final/`) and the generated
+(`gemini-extension.json`, `GEMINI.md`, `commands/`), the Claude Code and
+Cursor plugin marketplaces (`.claude-plugin/`, `.cursor-plugin/`, and
+`plugins/final/`, which both share) and the generated
 [tool reference](TOOLS.md) with its machine-readable twin `catalog.json`,
 which the server card at `https://ai.finalpos.com/.well-known/mcp/server-card.json`
 also reads. `GEMINI.md` and the Claude skill are the same
