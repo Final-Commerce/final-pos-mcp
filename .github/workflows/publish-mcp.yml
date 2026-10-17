@@ -40,7 +40,8 @@ jobs:
           for dir in . legacy/final-flows; do
             NAME=$(jq -r .name "$dir/server.json")
             VER=$(jq -r .version "$dir/server.json")
-            LATEST=$(curl -s "https://registry.modelcontextprotocol.io/v0.1/servers?search=${NAME}" | jq -r --arg n "$NAME" '.servers[] | select(.server.name == $n) | select(._meta."io.modelcontextprotocol.registry/official".isLatest) | .server.version')
+            # By name, not search: search=com.finalpos/final finds nothing.
+            LATEST=$(curl -s "https://registry.modelcontextprotocol.io/v0.1/servers/$(jq -rn --arg n "$NAME" '$n|@uri')/versions/latest" | jq -r '.server.version // empty')
             echo "$NAME latest=$LATEST current=$VER"
             if [ "$LATEST" = "$VER" ]; then echo "skip $NAME"; continue; fi
             (cd "$dir" && "$GITHUB_WORKSPACE/mcp-publisher" publish)
