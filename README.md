@@ -14,6 +14,13 @@
 </p>
 
 <p align="center">
+  <a href="https://registry.modelcontextprotocol.io/v0.1/servers?search=com.finalpos/final"><img src="https://img.shields.io/badge/MCP_Registry-com.finalpos%2Ffinal-5A45FF" alt="MCP Registry: com.finalpos/final" /></a>
+  <a href="https://cursor.com/en/install-mcp?name=final&config=eyJ1cmwiOiJodHRwczovL2FpLmZpbmFscG9zLmNvbS9tY3AifQ=="><img src="https://img.shields.io/badge/Cursor-Add_server-000000" alt="Add to Cursor" /></a>
+  <a href="https://insiders.vscode.dev/redirect/mcp/install?name=final&config=%7B%22type%22%3A%22http%22%2C%22url%22%3A%22https%3A%2F%2Fai.finalpos.com%2Fmcp%22%7D"><img src="https://img.shields.io/badge/VS_Code-Install_server-007ACC" alt="Install in VS Code" /></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache--2.0-blue" alt="License: Apache-2.0" /></a>
+</p>
+
+<p align="center">
   <a href="#connect">Connect</a> ·
   <a href="#what-your-agent-can-do">What it can do</a> ·
   <a href="TOOLS.md">Tool reference</a> ·
@@ -203,12 +210,29 @@ Final builder, where every file write is a restorable checkpoint.
 - **Flow limits:** Flow allows 30 preview boots, 12 builds and deploys, and
   300 file writes per hour.
 
-## Other Final MCP servers
+## Privacy and support
 
-| Server | URL | Use it for |
-|---|---|---|
-| Final docs | `https://mcp.finalpos.com/mcp` | Searching the Final POS REST API documentation, no account needed ([guide](https://finalpos.com/docs/ai-agents)) |
-| Flow (direct) | `https://flow.finalpos.com/api/mcp` | Existing setups with a Flow `sk_` key. New setups should use `https://ai.finalpos.com/mcp`, which includes Flow. |
+- **What Final keeps.** The connection (who made it, the company and the
+  packs), the token it uses to reach Hub and Flow (encrypted), and a log of
+  each tool call: the tool, the outcome, how long it took, and redacted
+  previews of the arguments and result. You see that log on the
+  [Connections page](https://ai.finalpos.com/connections).
+- **What Final doesn't see.** Your conversation. MCP clients send tool calls,
+  not the chat around them.
+- **Disconnecting** deletes the stored token and revokes every token issued to
+  that connection.
+- [Privacy policy](https://finalpos.com/legal/privacy) ·
+  [Terms](https://finalpos.com/legal/terms)
+- **Support:** [support@finalpos.com](mailto:support@finalpos.com). For
+  problems with this guide or the plugin, open an
+  [issue](https://github.com/Final-Commerce/final-pos-mcp/issues).
+
+## Flow's direct endpoint
+
+Setups made before the gateway may still use `https://flow.finalpos.com/api/mcp`
+with a Flow `sk_` key (registry name `com.finalpos.build/final-flows`). It keeps
+working, but new setups should use `https://ai.finalpos.com/mcp`, which includes
+Flow.
 
 ## FAQ
 
@@ -249,13 +273,21 @@ long lists. The agent finds the rest with `find_tools`, calls them with
 Connecting is free. What the agent does is billed like the same work done in
 Final yourself, under your Final plan.
 
+### Where are the Final POS API docs?
+At [finalpos.com/docs](https://finalpos.com/docs). An agent building an app
+doesn't need them separately: the `build` pack grounds every call against
+Final's version-locked APIs (`flow_lookup_pos_api`,
+`flow_lookup_command_frame`).
+
 ## About this repository
 
 This repo holds the public setup guide, the MCP Registry entries
-(`server.json`, `legacy/`, `docs-server/`), the Gemini CLI extension
+(`server.json`, `legacy/`), the Gemini CLI extension
 (`gemini-extension.json`, `GEMINI.md`, `commands/`), the Claude Code plugin
 marketplace (`.claude-plugin/`, `plugins/final/`) and the generated
-[tool reference](TOOLS.md). `GEMINI.md` and the Claude skill are the same
+[tool reference](TOOLS.md) with its machine-readable twin `catalog.json`,
+which the server card at `https://ai.finalpos.com/.well-known/mcp/server-card.json`
+also reads. `GEMINI.md` and the Claude skill are the same
 playbook, and CI checks that they match. The server itself is hosted by Final;
 no code from this repo runs on your machine.
 

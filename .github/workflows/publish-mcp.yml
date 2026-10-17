@@ -1,15 +1,21 @@
 name: Publish to MCP Registry
 
-# Three registry entries, each published only when its version is not live yet:
+# The registry entries, each published only when its version is not live yet:
 #  - com.finalpos/final              server.json                      the Final MCP gateway (ai.finalpos.com/mcp)
 #  - com.finalpos.build/final-flows  legacy/final-flows/server.json   Flow's direct endpoint, kept for sk_ keys
-#  - io.github.Final-Commerce/final-docs  docs-server/server.json     the docs MCP server
-# The com.finalpos.* entries use DNS auth on finalpos.com (MCP_PRIVATE_KEY repo
-# secret + the "v=MCPv1; ..." TXT record on the apex); final-docs uses GitHub OIDC.
+# Both use DNS auth on finalpos.com (MCP_PRIVATE_KEY repo secret + the
+# "v=MCPv1; ..." TXT record on the apex). Runs on every push to main that
+# touches an entry, so a merged version bump is live without a tag.
+#
+# io.github.Final-Commerce/final-docs (GitHub OIDC) is retired: it pointed at a
+# public docs server that no longer exists (mcp.finalpos.com is Final OS's
+# keyed staff server). The retire job hides any version still listed.
 
 on:
   workflow_dispatch:
   push:
+    branches: [main]
+    paths: ["server.json", "legacy/**", ".github/workflows/publish-mcp.yml"]
     tags: ["v*"]
 
 jobs:
@@ -40,32 +46,31 @@ jobs:
             (cd "$dir" && "$GITHUB_WORKSPACE/mcp-publisher" publish)
           done
 
-  publish-final-docs:
+  retire-final-docs:
     runs-on: ubuntu-latest
     permissions:
       id-token: write # Required for OIDC authentication
       contents: read
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v5
-
       - name: Install mcp-publisher
         run: |
           curl -L "https://github.com/modelcontextprotocol/registry/releases/latest/download/mcp-publisher_$(uname -s | tr '[:upper:]' '[:lower:]')_$(uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/').tar.gz" | tar xz mcp-publisher
 
-      - name: Skip if version already published
+      - name: Skip if nothing is listed
         id: check
         run: |
-          NAME=$(jq -r .name docs-server/server.json)
-          VER=$(jq -r .version docs-server/server.json)
-          LATEST=$(curl -s "https://registry.modelcontextprotocol.io/v0.1/servers?search=${NAME}" | jq -r '.servers[] | select(.server.name == "'"$NAME"'") | select(._meta."io.modelcontextprotocol.registry/official".isLatest) | .server.version')
-          echo "latest=$LATEST current=$VER"
-          if [ "$LATEST" = "$VER" ]; then echo "skip=true" >> "$GITHUB_OUTPUT"; else echo "skip=false" >> "$GITHUB_OUTPUT"; fi
+          NAME=io.github.Final-Commerce/final-docs
+          LISTED=$(curl -s "https://registry.modelcontextprotocol.io/v0.1/servers?search=${NAME}" | jq --arg n "$NAME" '[.servers[] | select(.server.name == $n) | select(._meta."io.modelcontextprotocol.registry/official".status != "deleted")] | length')
+          echo "listed=$LISTED"
+          if [ "$LISTED" = "0" ]; then echo "skip=true" >> "$GITHUB_OUTPUT"; else echo "skip=false" >> "$GITHUB_OUTPUT"; fi
 
       - name: Authenticate to MCP Registry (GitHub OIDC)
         if: steps.check.outputs.skip == 'false'
         run: ./mcp-publisher login github-oidc
 
-      - name: Publish final-docs server
+      - name: Retire final-docs
         if: steps.check.outputs.skip == 'false'
-        run: cd docs-server && ../mcp-publisher publish
+        run: |
+          ./mcp-publisher status --status deleted --all-versions --yes \
+            --message "Retired. Use com.finalpos/final (https://ai.finalpos.com/mcp)." \
+            io.github.Final-Commerce/final-docs

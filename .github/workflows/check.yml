@@ -13,14 +13,14 @@ jobs:
 
       - name: JSON files parse
         run: |
-          for f in server.json legacy/final-flows/server.json docs-server/server.json gemini-extension.json .mcp.json \
+          for f in server.json legacy/final-flows/server.json gemini-extension.json .mcp.json \
                    .claude-plugin/marketplace.json plugins/final/.claude-plugin/plugin.json plugins/final/.mcp.json glama.json; do
             jq empty "$f" || { echo "::error file=$f::invalid JSON"; exit 1; }
           done
 
       - name: Registry descriptions fit (100 chars)
         run: |
-          for f in server.json legacy/final-flows/server.json docs-server/server.json; do
+          for f in server.json legacy/final-flows/server.json; do
             n=$(jq -r '.description | length' "$f")
             [ "$n" -le 100 ] || { echo "::error file=$f::description is $n chars"; exit 1; }
           done
