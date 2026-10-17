@@ -1,47 +1,65 @@
-# Installing the Final POS MCP server (for AI agents)
+# Installing the Final MCP server (for AI agents)
 
-Final POS ships a **hosted remote MCP server** — there is nothing to build or run
-locally. You only need to add the endpoint to the user's MCP configuration.
+Final hosts a **remote MCP server**, so there is nothing to build or run
+locally. Add one URL to the user's MCP configuration:
 
-## 1. Ask the user for their API key
+```
+https://ai.finalpos.com/mcp
+```
 
-The server requires a Final organization API key (`sk_...`). Ask the user to:
+- Transport: **Streamable HTTP**
+- Auth: **OAuth 2.1 with PKCE**. The client discovers it from the `401`
+  (`WWW-Authenticate` → `/.well-known/oauth-protected-resource/mcp`) and
+  registers itself dynamically. The user signs in with their Final account and
+  picks the company and the packs.
+- The user needs a Final account (free at https://finalpos.com).
 
-1. Sign in at https://build.finalpos.com
-2. Open a flow, then in the chat rail click the **cable icon** → **"Connect your AI tool"**
-3. Mint a key and paste it to you (it is shown once)
+## 1. Add the server
 
-If the user has no Final account yet, they can create one free at
-https://build.finalpos.com.
-
-## 2. Add the server configuration
-
-Add this to the MCP settings file (adjust to the host application's format):
+If the host supports OAuth for remote servers, add it **without any headers**:
 
 ```json
 {
   "mcpServers": {
-    "final-flows": {
-      "url": "https://build.finalpos.com/api/mcp",
-      "headers": {
-        "Authorization": "Bearer sk_USER_KEY_HERE"
-      }
-    },
-    "final-docs": {
-      "url": "https://docs.finalpos.com/mcp"
+    "final": { "type": "http", "url": "https://ai.finalpos.com/mcp" }
+  }
+}
+```
+
+Adjust the shape to the host: Gemini CLI uses `"httpUrl"`, VS Code uses
+`"servers"` with `"type": "http"`, and Codex uses `[mcp_servers.final]` in
+`~/.codex/config.toml`.
+
+If the host does **not** support OAuth, ask the user to create a connection
+key at https://ai.finalpos.com/connections (it is shown once) and send it as a
+header:
+
+```json
+{
+  "mcpServers": {
+    "final": {
+      "type": "http",
+      "url": "https://ai.finalpos.com/mcp",
+      "headers": { "Authorization": "Bearer fai_USER_KEY_HERE" }
     }
   }
 }
 ```
 
-- Transport: **Streamable HTTP** (both servers)
-- `final-flows` auth: `Authorization: Bearer sk_...` header (or `x-api-key: sk_...`);
-  clients with OAuth 2.1 support can instead connect with no header and complete
-  the OAuth flow.
-- `final-docs` needs no authentication.
+Do not add an `Authorization` header when using OAuth: a configured header
+stops the OAuth flow. Keys starting with `sk_` or `fpm_` are not accepted here.
+
+## 2. Optional: the docs server
+
+To search the Final POS REST API docs, also add
+`https://mcp.finalpos.com/mcp` as `final-docs`.
 
 ## 3. Verify
 
-Call the `get_scaffold` tool on `final-flows` — it should return the Final app
-contract. On `final-docs`, search for "orders" — it should return REST API
-documentation results.
+Call `get_connection` on `final`. It returns the organization, the company Hub
+tools act on, and the allowed and listed packs. Then call `list_packs`.
+
+If a tool the user needs isn't listed, `find_tools` searches every allowed pack
+and `call_tool` calls the match. See
+https://github.com/Final-Commerce/final-pos-mcp for the playbook and
+[TOOLS.md](TOOLS.md) for every tool.

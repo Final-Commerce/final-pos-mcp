@@ -1,60 +1,95 @@
-# Building Final POS apps
+<!-- Same playbook as skills/final/SKILL.md (Claude Code). Change both. -->
+# Working with Final
 
-You are connected to the **Final Flows MCP server** (`final-flows`), the
-build API for [Final](https://finalpos.com) — a platform for creating custom
-point of sale, kiosk, self-checkout, KDS, and in-person payment apps that run
-on any hardware (desktop, tablet, mobile, payment terminal, line buster, menu
-board). A second server, `final-docs`, answers questions about the Final POS
-REST API (`https://api.finalpos.com`).
+You are connected to the **Final MCP server** (`final`, `https://ai.finalpos.com/mcp`).
+[Final](https://finalpos.com) is the commerce platform behind the merchant's
+point of sale. The server reaches every Final product through one connection,
+acting as the person who connected it, on one company, within the packs they
+allowed:
 
-Everything you do through `final-flows` shows up live in the user's builder at
-build.finalpos.com: the flow appears in their home grid, your session appears
-as a chat in the rail, and every file write is a restorable checkpoint.
+- `hub_*` tools: **Hub**, the back office. Products, categories, modifiers,
+  stock, suppliers and purchase orders, customers, orders, reports, team and
+  roles, outlets, stations, taxes, media, bookings, extensions.
+- `flow_*` tools: **Flow**, the app builder. Custom POS, kiosk, self-checkout
+  and payment-terminal apps, with grounding, blueprints, preview sandboxes,
+  validation and deploys.
 
-## The build loop
+A second server, `final-docs`, searches the Final POS REST API documentation.
 
-Follow this order for every POS app you build:
+## Start every session the same way
 
-1. **`get_scaffold`** — call once per session to learn the app contract:
-   engine-owned files (never write them), the baseline `package.json`, and the
-   construction rules.
-2. **`create_flow`** for a new app, or **`connect_chat`** to attach to an
-   existing flow the user gives you. Never create a new flow when the user
-   already has one.
-3. **`log_message`** (role `"user"`) with the user's build brief, so their
-   builder timeline stays faithful. Log short assistant notes at milestones.
-4. **Ground before you write.** Every `renderClient` call must be verified
-   with `lookup_command_frame` first — never guess a method signature, entity
-   field, or pub/sub topic. Use `lookup_engine_component` for `./final/*`
-   helpers and `lookup_pos_api` (or the `final-docs` server) for REST calls.
-5. **Start from blueprints.** Check `list_blueprints` / `get_blueprint` for
-   vetted screens (product grids, carts, payment surfaces, receipts) and adapt
-   them instead of writing screens from scratch.
-6. **`write_flow_files`** with full file contents. App code lives under
-   `src/`, entry point `src/App.tsx`. Writes to engine-owned paths are
-   rejected.
-7. **`validate_flow`** and fix every finding — guardrails, command-frame
-   typecheck, and secret scan must all pass.
-8. **`start_preview`** and give the user the public preview URL so they can
-   see the app live. Use `sync_preview` after edits (it is also the fastest
-   compile check) and `get_preview_status` if something looks wrong.
+1. Call **`get_connection`**. It returns who you act as, the company Hub
+   tools act on, the other companies you can switch to, and which packs are
+   allowed and listed.
+2. If no company is selected and you need Hub, call **`switch_company`**.
+3. If the job needs tools you can't see, call **`find_tools`** with a plain
+   description ("low stock", "purchase order", "deploy the app"). Call the
+   match with **`call_tool`**, or **`enable_packs`** to list its whole pack.
+   Don't tell the user a capability is missing until `find_tools` comes back
+   empty.
 
-## Shipping
+Packs: `catalog`, `inventory`, `orders`, `customers`, `reports`, `team`,
+`store`, `bookings` (Hub) and `build`, `build_data` (Flow). If a tool is in a
+pack this connection doesn't allow, tell the user they can widen it at
+https://ai.finalpos.com/connections.
 
-When the user wants to go live, prefer **`open_in_builder`** — it returns a
-deep link where they finish launch inside the Final builder (recommended).
-`deploy_flow` is the direct CI-style path and needs an explicit
-`hostingToken`; only use it when the user provides one.
+## Rules
 
-## Rules that will save you
+- **Confirm before changing live data.** Tools with `readOnlyHint: false`
+  change the merchant's real store. Say what will change and wait for a yes
+  before deploys, deletes, price changes and bulk imports. Reads need no
+  confirmation.
+- **Never invent ids.** Look up products, customers, outlets and flows first.
+- **Money stays on the till.** You can't take payments, refund or void
+  orders. Orders are read-only.
+- **Secrets never pass through you.** Use `flow_request_secret` so the
+  merchant enters API keys in the builder. Never write a key into a file.
+- **Show your work in money terms.** When you report sales or stock, give the
+  period, outlet and currency you used.
 
-- Never write or delete engine-owned files listed by `get_scaffold`.
-- Never invent `renderClient` APIs, entities, or topics — ground every call.
-- Never hardcode secrets or API keys in flow files; `validate_flow` scans for
-  them and will fail the build.
-- Respect rate limits per API key: 30 preview boots/hour, 12 builds+deploys/
-  hour, 300 file writes/hour. Batch your file writes.
-- All tool calls are scoped to the user's own organization by their
-  `FINAL_API_KEY`. If auth fails, tell them to mint a key at
-  build.finalpos.com (chat rail > cable icon > "Connect your AI tool") and run
-  `gemini extensions config final-pos`.
+## Running the store (Hub)
+
+- Catalog changes: search first (`hub_get_products`), then update. For many
+  products, prefer the import tools (`hub_import_products`) over one call per
+  product.
+- Stock: `hub_find_low_stock` and `hub_get_reorder_suggestions` before you
+  draft purchase orders, and `hub_record_received_goods` when a delivery
+  arrives.
+- Reports: `hub_get_financial_summary` and `hub_get_sales_breakdown` take a
+  date range. State the range you chose.
+
+## Building apps (Flow)
+
+1. **`flow_get_scaffold`** once per session: the app contract, engine-owned
+   files you must never write, and the construction rules.
+2. **`flow_create_flow`** for a new app, or **`flow_connect_chat`** for one the
+   user already has (`flow_list_flows`). Never create a duplicate.
+3. **`flow_log_message`** (role `"user"`) with the brief, so the builder
+   timeline matches the conversation.
+4. **Ground before you write.** Check every `renderClient` call with
+   `flow_lookup_command_frame`, `./final/*` helpers with
+   `flow_lookup_engine_component`, and REST calls with `flow_lookup_pos_api`
+   or `final-docs`. Never guess a method, entity field or topic.
+5. **Start from blueprints**: `flow_search_blueprints` / `flow_get_blueprint`
+   for product grids, carts, payment screens and receipts.
+6. **`flow_write_flow_files`** with full file contents. App code lives under
+   `src/`, with `src/App.tsx` as the entry point. Batch your writes.
+7. **`flow_validate_flow`**, and fix every finding until it passes.
+8. **`flow_start_preview`**, then give the user the preview URL. After edits,
+   **`flow_sync_preview`** (also the fastest compile check).
+9. To go live, prefer **`flow_open_in_builder`**: the user launches from the
+   Final builder. Use `flow_deploy_flow` only when they ask for it and confirm.
+
+Flow allows 30 preview boots, 12 builds and deploys, and 300 file writes per
+hour.
+
+## When something fails
+
+- `401` or "reconnect": the connection was revoked or expired. Ask the user to
+  sign in again (Claude Code: `/mcp`; Gemini CLI: `/mcp auth final`) or check
+  https://ai.finalpos.com/connections.
+- "No company selected": `get_connection`, then `switch_company`.
+- "pack … may not use": the merchant didn't allow that pack. Say which pack and
+  where to allow it.
+- Provider unreachable: `list_packs` shows what is unavailable right now.
+  Retry later rather than working around it.

@@ -2,9 +2,9 @@
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.Final-Commerce/final-docs",
   "title": "Final POS Docs",
-  "description": "Search the Final POS REST API documentation.",
-  "version": "1.0.0",
-  "websiteUrl": "https://docs.finalpos.com",
+  "description": "Search the Final POS REST API documentation: endpoints, schemas, auth and guides. No key needed.",
+  "version": "1.1.0",
+  "websiteUrl": "https://finalpos.com/docs/ai-agents",
   "repository": {
     "url": "https://github.com/Final-Commerce/final-pos-mcp",
     "source": "github"
@@ -12,7 +12,7 @@
   "remotes": [
     {
       "type": "streamable-http",
-      "url": "https://docs.finalpos.com/mcp"
+      "url": "https://mcp.finalpos.com/mcp"
     }
   ]
 }

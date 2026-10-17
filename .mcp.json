@@ -1,13 +1,12 @@
 {
   "mcpServers": {
-    "final-flows": {
-      "url": "https://build.finalpos.com/api/mcp",
-      "headers": {
-        "Authorization": "Bearer ${FINAL_API_KEY}"
-      }
+    "final": {
+      "type": "http",
+      "url": "https://ai.finalpos.com/mcp"
     },
     "final-docs": {
-      "url": "https://docs.finalpos.com/mcp"
+      "type": "http",
+      "url": "https://mcp.finalpos.com/mcp"
     }
   }
 }

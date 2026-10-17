@@ -1,0 +1,35 @@
+name: Check
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: JSON files parse
+        run: |
+          for f in server.json legacy/final-flows/server.json docs-server/server.json gemini-extension.json .mcp.json \
+                   .claude-plugin/marketplace.json plugins/final/.claude-plugin/plugin.json plugins/final/.mcp.json glama.json; do
+            jq empty "$f" || { echo "::error file=$f::invalid JSON"; exit 1; }
+          done
+
+      - name: Registry descriptions fit (100 chars)
+        run: |
+          for f in server.json legacy/final-flows/server.json docs-server/server.json; do
+            n=$(jq -r '.description | length' "$f")
+            [ "$n" -le 100 ] || { echo "::error file=$f::description is $n chars"; exit 1; }
+          done
+
+      - name: Gemini and Claude playbooks match
+        run: |
+          body() { awk 'f; /Change both\. -->/ { f = 1 }' "$1"; }
+          diff <(body GEMINI.md) <(body plugins/final/skills/final/SKILL.md) \
+            || { echo "::error::GEMINI.md and plugins/final/skills/final/SKILL.md differ; change both"; exit 1; }
+
+      - name: Both MCP configs point at the same servers
+        run: diff <(jq -S . .mcp.json) <(jq -S . plugins/final/.mcp.json)
