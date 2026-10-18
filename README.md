@@ -2,11 +2,11 @@
   <img src="assets/final-icon.png" alt="Final" width="112" />
 </p>
 
-<h1 align="center">Final MCP server</h1>
+<h1 align="center">Final MCP server: build custom POS apps with AI</h1>
 
 <p align="center">
   Connect Claude, ChatGPT, Gemini, Cursor, Codex or any MCP client to <a href="https://finalpos.com">Final</a>:<br />
-  run the store from <strong>Hub</strong> and build point-of-sale apps with <strong>Flow</strong>, through one server.
+  build custom POS apps with <strong>Flow</strong> (checkout flows, self-checkout kiosks, payment terminals)<br />and run the store behind them from <strong>Hub</strong>, through one server.
 </p>
 
 <p align="center">
@@ -35,10 +35,14 @@
 One remote endpoint, `https://ai.finalpos.com/mcp`, gives an AI agent access to
 every Final product the merchant allows:
 
-- **Hub**, the back office: products and catalog, stock and purchase orders,
-  orders, customers, sales reports, team and roles, outlets, taxes, bookings.
-- **Flow**, the app builder: create, preview, validate and deploy custom POS,
-  kiosk, self-checkout and payment-terminal apps.
+- **Flow**, the custom POS app builder: describe a checkout and the agent builds
+  it from vetted screen blueprints, grounded in Final's version-locked POS APIs,
+  then validates it, returns a live preview link and deploys it to payment
+  terminals, tablets and kiosks. Counter POS, self-checkout, restaurant ordering,
+  kitchen displays and in-person payment apps.
+- **Hub**, the back office behind those apps: products and catalog, stock and
+  purchase orders, orders, customers, sales reports, team and roles, outlets,
+  taxes, bookings.
 
 You sign in with your Final account (OAuth 2.1) and choose the company and what
 the agent may do. There is nothing to install or run locally.
@@ -171,16 +175,10 @@ tool**, with its pack, whether it changes data, and its arguments.
 
 ### Things to ask
 
-**Running the store (Hub)**
-- "Which products are below their reorder point at the Main Street outlet? Draft a purchase order for the usual supplier."
-- "Compare last week's sales by category with the week before."
-- "Add these 40 products from the attached spreadsheet, with photos."
-- "Who were my top ten customers this month, and what did they buy?"
-- "Set up a 45-minute massage as a bookable service with two therapists."
-
-**Building apps (Flow)**
+**Building custom POS apps (Flow)**
 - "Build a coffee-shop kiosk with a product grid, modifiers, a cart and card payments, then give me a preview link."
 - "Add a tip screen to my counter app and validate it."
+- "Create a self-checkout flow for a small grocery store with barcode scanning and a receipt screen."
 - "Ship the latest version of my self-checkout flow."
 
 An app build usually runs `flow_get_scaffold` → `flow_create_flow` →
@@ -188,6 +186,13 @@ An app build usually runs `flow_get_scaffold` → `flow_create_flow` →
 `flow_write_flow_files` → `flow_validate_flow` → `flow_start_preview`, and
 returns a live preview URL. Everything the agent builds also appears in the
 Final builder, where every file write is a restorable checkpoint.
+
+**Running the store (Hub)**
+- "Which products are below their reorder point at the Main Street outlet? Draft a purchase order for the usual supplier."
+- "Compare last week's sales by category with the week before."
+- "Add these 40 products from the attached spreadsheet, with photos."
+- "Who were my top ten customers this month, and what did they buy?"
+- "Set up a 45-minute massage as a bookable service with two therapists."
 
 ## Safety and permissions
 
